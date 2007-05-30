@@ -26,7 +26,7 @@ class Page(models.Model):
     meta_description   = models.CharField(maxlength=512, null=True, blank=True)
     meta_keywords      = models.CharField(maxlength=512, null=True, blank=True)
     sitemap_changefreq = models.CharField(null=True, blank=True, maxlength=50, choices=SITEMAP_CHANGEFREQ_CHOICES)
-    sitemap_priority   = models.FloatField(null=True, blank=True, max_digits=2, decimal_places=1, help_text='Enter a value from 0.0 to 1.0. ')
+    sitemap_priority   = models.DecimalField(null=True, blank=True, max_digits=2, decimal_places=1, help_text='Enter a value from 0.0 to 1.0. ')
 
     template_name      = models.CharField(maxlength=128, null=True, blank=True, help_text='If left blank, \'pages/default.html\' will be used. ')
     visible            = models.BooleanField(default=True)
