@@ -17,7 +17,7 @@ SITEMAP_CHANGEFREQ_CHOICES = [
 
 class Page(models.Model):
 
-    url                = models.CharField(verbose_name='URL', maxlength=128, unique=True, validator_list=[validators.isAlphaNumericURL], help_text='Should have leading and trailing slashes. ')
+    url                = models.CharField('URL', maxlength=128, validator_list=[validators.isAlphaNumericURL], help_text='Should have leading and trailing slashes. ')
     title              = models.CharField(maxlength=128)
     body               = models.TextField(maxlength=65536, null=True, blank=True)
     site               = models.ForeignKey(Site, default=1)
@@ -42,8 +42,7 @@ class Page(models.Model):
         ordering = ['url',]
 
     class Admin:
-        list_display = ('url', 'title', 'visible', 'modified') 
-        list_filter = ['visible', 'modified']
+        list_display = ('url', 'title', 'site', 'visible', 'modified') 
         search_fields = ['url', 'title', 'body']
         fields = (
             (None, {'fields': ('url', 'title', 'body', 'site')}),
@@ -63,8 +62,8 @@ class Page(models.Model):
 
 class Redirect(models.Model):
 
-    old_url            = models.CharField(verbose_name='Old URL', maxlength=128, unique=True, validator_list=[validators.isAlphaNumericURL], help_text='Should have leading and trailing slashes. ')
-    new_url            = models.CharField(verbose_name='New URL', maxlength=128, validator_list=[validators.isAlphaNumericURL], help_text='Should have leading and trailing slashes. ')
+    old_url            = models.CharField('Old URL', maxlength=128, validator_list=[validators.isAlphaNumericURL], help_text='Should have leading and trailing slashes. ')
+    new_url            = models.CharField('New URL', maxlength=128, validator_list=[validators.isAlphaNumericURL], help_text='Should have leading and trailing slashes. ')
     site               = models.ForeignKey(Site, default=1)
 
     notes              = models.TextField(maxlength=16384, null=True, blank=True, help_text='Private notes. ')
@@ -79,7 +78,7 @@ class Redirect(models.Model):
         ordering = ['old_url',]
 
     class Admin:
-        list_display = ('old_url', 'new_url', 'modified') 
+        list_display = ('old_url', 'new_url', 'site', 'modified') 
         search_fields = ['old_url', 'new_url']
         fields = (
             (None, {'fields': ('old_url', 'new_url', 'site')}),
