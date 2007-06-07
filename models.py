@@ -62,8 +62,8 @@ class Page(models.Model):
 
 class Redirect(models.Model):
 
-    old_url            = models.CharField('Old URL', maxlength=128, validator_list=[validators.isAlphaNumericURL], help_text='Should have leading and trailing slashes. ')
-    new_url            = models.CharField('New URL', maxlength=128, validator_list=[validators.isAlphaNumericURL], help_text='Should have leading and trailing slashes. ')
+    old_url            = models.CharField('Old URL', maxlength=128, unique=True, help_text='Should have leading and trailing slashes. ')
+    new_url            = models.CharField('New URL', maxlength=128, help_text='Should have leading and trailing slashes. ')
     site               = models.ForeignKey(Site, default=1)
 
     notes              = models.TextField(maxlength=16384, null=True, blank=True, help_text='Private notes. ')
