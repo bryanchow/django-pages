@@ -43,6 +43,7 @@ class Page(models.Model):
 
     class Admin:
         list_display = ('url', 'title', 'site', 'visible', 'modified') 
+        list_filter = ('site',)
         search_fields = ['url', 'title', 'body']
         fields = (
             (None, {'fields': ('url', 'title', 'body', 'site')}),
@@ -79,6 +80,7 @@ class Redirect(models.Model):
 
     class Admin:
         list_display = ('old_url', 'new_url', 'site', 'modified') 
+        list_filter = ('site',)
         search_fields = ['old_url', 'new_url']
         fields = (
             (None, {'fields': ('old_url', 'new_url', 'site')}),
