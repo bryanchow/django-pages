@@ -63,7 +63,7 @@ class Page(models.Model):
 
 class Redirect(models.Model):
 
-    old_url            = models.CharField('Old URL', maxlength=128, unique=True, help_text='Should have leading and trailing slashes. ')
+    old_url            = models.CharField('Old URL', maxlength=128, unique=True, help_text='Should have a leading slash. ')
     new_url            = models.CharField('New URL', maxlength=128, help_text='Should have leading and trailing slashes. ')
     site               = models.ForeignKey(Site, default=1)
 
