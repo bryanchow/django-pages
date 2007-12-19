@@ -17,20 +17,20 @@ SITEMAP_CHANGEFREQ_CHOICES = [
 
 class Page(models.Model):
 
-    url                = models.CharField('URL', maxlength=128, validator_list=[validators.isAlphaNumericURL], help_text='Should have leading and trailing slashes. ')
-    title              = models.CharField(maxlength=128)
-    body               = models.TextField(maxlength=65536, null=True, blank=True)
+    url                = models.CharField('URL', max_length=128, validator_list=[validators.isAlphaNumericURL], help_text='Should have leading and trailing slashes. ')
+    title              = models.CharField(max_length=128)
+    body               = models.TextField(max_length=65536, null=True, blank=True)
     site               = models.ForeignKey(Site, default=1)
 
-    page_title         = models.CharField(maxlength=512, null=True, blank=True)
-    meta_description   = models.CharField(maxlength=512, null=True, blank=True)
-    meta_keywords      = models.CharField(maxlength=512, null=True, blank=True)
-    sitemap_changefreq = models.CharField(null=True, blank=True, maxlength=50, choices=SITEMAP_CHANGEFREQ_CHOICES)
+    page_title         = models.CharField(max_length=512, null=True, blank=True)
+    meta_description   = models.CharField(max_length=512, null=True, blank=True)
+    meta_keywords      = models.CharField(max_length=512, null=True, blank=True)
+    sitemap_changefreq = models.CharField(null=True, blank=True, max_length=50, choices=SITEMAP_CHANGEFREQ_CHOICES)
     sitemap_priority   = models.DecimalField(null=True, blank=True, max_digits=2, decimal_places=1, help_text='Enter a value from 0.0 to 1.0. ')
 
-    template_name      = models.CharField(maxlength=128, null=True, blank=True, help_text='If left blank, \'pages/default.html\' will be used. ')
+    template_name      = models.CharField(max_length=128, null=True, blank=True, help_text='If left blank, \'pages/default.html\' will be used. ')
     visible            = models.BooleanField(default=True)
-    notes              = models.TextField(maxlength=16384, null=True, blank=True, help_text='Private notes. ')
+    notes              = models.TextField(max_length=16384, null=True, blank=True, help_text='Private notes. ')
     created            = models.DateTimeField(auto_now_add=True)
     modified           = models.DateTimeField(auto_now=True)
 
@@ -63,11 +63,11 @@ class Page(models.Model):
 
 class Redirect(models.Model):
 
-    old_url            = models.CharField('Old URL', maxlength=128, unique=True, help_text='Should have a leading slash. ')
-    new_url            = models.CharField('New URL', maxlength=128, help_text='Should have leading and trailing slashes. ')
+    old_url            = models.CharField('Old URL', max_length=128, unique=True, help_text='Should have a leading slash. ')
+    new_url            = models.CharField('New URL', max_length=128, help_text='Should have leading and trailing slashes. ')
     site               = models.ForeignKey(Site, default=1)
 
-    notes              = models.TextField(maxlength=16384, null=True, blank=True, help_text='Private notes. ')
+    notes              = models.TextField(max_length=16384, null=True, blank=True, help_text='Private notes. ')
     created            = models.DateTimeField(auto_now_add=True)
     modified           = models.DateTimeField(auto_now=True)
 
