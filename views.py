@@ -1,6 +1,8 @@
 from datetime import datetime
+from django.core.urlresolvers import get_resolver 
 from django.template import loader, RequestContext
 from django.http import HttpResponse, HttpResponseRedirect, Http404
+from django.conf import settings
 from factorlib.pages.models import Page, Redirect
 
 
@@ -25,6 +27,10 @@ def page(request, url):
         try:
             object = Redirect.on_site.get(old_url__exact=url)
             return HttpResponseRedirect(object.new_url)
+
         except Redirect.DoesNotExist:
-            raise Http404
+            if url.endswith('/') or not settings.APPEND_SLASH: 
+                raise Http404 
+            else:
+                return HttpResponseRedirect('%s/' % url) 
 
