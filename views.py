@@ -1,5 +1,4 @@
 from datetime import datetime
-from django.core.urlresolvers import get_resolver 
 from django.template import loader, RequestContext
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.conf import settings
