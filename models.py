@@ -1,5 +1,7 @@
+from datetime import datetime
 from django.core import validators
 from django.db import models
+from django.contrib import admin
 from django.contrib.sites.models import Site
 from django.contrib.sites.managers import CurrentSiteManager
 
@@ -31,8 +33,8 @@ class Page(models.Model):
     template_name      = models.CharField(max_length=128, null=True, blank=True, help_text='If left blank, \'pages/default.html\' will be used. ')
     visible            = models.BooleanField(default=True)
     notes              = models.TextField(max_length=16384, null=True, blank=True, help_text='Private notes. ')
-    created            = models.DateTimeField(auto_now_add=True)
-    modified           = models.DateTimeField(auto_now=True)
+    created            = models.DateTimeField(default=datetime.now())
+    modified           = models.DateTimeField(blank=True)
 
     objects            = models.Manager()
     on_site            = CurrentSiteManager('site')
@@ -40,16 +42,6 @@ class Page(models.Model):
     class Meta:
         unique_together = (('url', 'site'),)
         ordering = ['url',]
-
-    class Admin:
-        list_display = ('url', 'title', 'site', 'visible', 'modified') 
-        list_filter = ('site',)
-        search_fields = ['url', 'title', 'body']
-        fields = (
-            (None, {'fields': ('url', 'title', 'body', 'site')}),
-            ('Search engine optimization', {'fields': ('page_title', 'meta_description', 'meta_keywords', 'sitemap_changefreq', 'sitemap_priority'), 'classes': 'collapse'}),
-            ('More properties', {'fields': ('template_name', 'visible', 'notes', 'created', 'modified'), 'classes': 'collapse'}),
-        )
 
     def __repr__(self):
         return self.url
@@ -60,6 +52,22 @@ class Page(models.Model):
     def get_absolute_url(self):
         return self.url
 
+    def save(self):
+        self.modified = datetime.now()
+        super(Page, self).save()
+
+
+class PageAdmin(admin.ModelAdmin):
+    
+    list_display = ('url', 'title', 'site', 'visible', 'modified') 
+    list_filter = ('site',)
+    search_fields = ['url', 'title', 'body']
+    fieldsets = (
+        (None, {'fields': ('url', 'title', 'body', 'site')}),
+        ('Search engine optimization', {'fields': ('page_title', 'meta_description', 'meta_keywords', 'sitemap_changefreq', 'sitemap_priority'), 'classes': ('collapse',)}),
+        ('More properties', {'fields': ('template_name', 'visible', 'notes', 'created', 'modified'), 'classes': ('collapse',)}),
+    )
+
 
 class Redirect(models.Model):
 
@@ -68,8 +76,8 @@ class Redirect(models.Model):
     site               = models.ForeignKey(Site, default=1)
 
     notes              = models.TextField(max_length=16384, null=True, blank=True, help_text='Private notes. ')
-    created            = models.DateTimeField(auto_now_add=True)
-    modified           = models.DateTimeField(auto_now=True)
+    created            = models.DateTimeField(default=datetime.now())
+    modified           = models.DateTimeField(blank=True)
 
     objects            = models.Manager()
     on_site            = CurrentSiteManager('site')
@@ -77,15 +85,6 @@ class Redirect(models.Model):
     class Meta:
         unique_together = (('old_url', 'site'),)
         ordering = ['old_url',]
-
-    class Admin:
-        list_display = ('old_url', 'new_url', 'site', 'modified') 
-        list_filter = ('site',)
-        search_fields = ['old_url', 'new_url']
-        fields = (
-            (None, {'fields': ('old_url', 'new_url', 'site')}),
-            ('More properties', {'fields': ('notes', 'created', 'modified'), 'classes': 'collapse'}),
-        )
 
     def __repr__(self):
         return self.old_url
@@ -95,4 +94,23 @@ class Redirect(models.Model):
 
     def get_absolute_url(self):
         return self.new_url
+
+    def save(self):
+        self.modified = datetime.now()
+        super(Redirect, self).save()
+
+
+class RedirectAdmin(admin.ModelAdmin):
+
+    list_display = ('old_url', 'new_url', 'site', 'modified') 
+    list_filter = ('site',)
+    search_fields = ['old_url', 'new_url']
+    fieldset = (
+        (None, {'fields': ('old_url', 'new_url', 'site')}),
+        ('More properties', {'fields': ('notes', 'created', 'modified'), 'classes': ('collapse',)}),
+    )
+
+
+admin.site.register(Page, PageAdmin)
+admin.site.register(Redirect, RedirectAdmin)
 
