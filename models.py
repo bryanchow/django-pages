@@ -4,7 +4,10 @@ from django.db import models
 from django.contrib import admin
 from django.contrib.sites.models import Site
 from django.contrib.sites.managers import CurrentSiteManager
+from factorlib import markup
 
+
+DEFAULT_MARKUP = 'textile'
 
 SITEMAP_CHANGEFREQ_CHOICES = [
     ('always', 'always'),
@@ -22,6 +25,7 @@ class Page(models.Model):
     url                = models.CharField('URL', max_length=128, validator_list=[validators.isAlphaNumericURL], help_text='Should have leading and trailing slashes. ')
     title              = models.CharField(max_length=128)
     body               = models.TextField(max_length=65536, null=True, blank=True)
+    body_markup        = models.CharField(choices=markup.MARKUP_CHOICES, null=True, default=DEFAULT_MARKUP, max_length=8)
     site               = models.ForeignKey(Site, default=1)
 
     page_title         = models.CharField(max_length=512, null=True, blank=True)
@@ -56,6 +60,9 @@ class Page(models.Model):
         self.modified = datetime.now()
         super(Page, self).save()
 
+    def render_body(self):
+        return markup.render(self.body, self.body_markup)
+
 
 class PageAdmin(admin.ModelAdmin):
     
@@ -63,7 +70,7 @@ class PageAdmin(admin.ModelAdmin):
     list_filter = ('site',)
     search_fields = ['url', 'title', 'body']
     fieldsets = (
-        (None, {'fields': ('url', 'title', 'body', 'site')}),
+        (None, {'fields': ('url', 'title', 'body', 'body_markup', 'site')}),
         ('Search engine optimization', {'fields': ('page_title', 'meta_description', 'meta_keywords', 'sitemap_changefreq', 'sitemap_priority'), 'classes': ('collapse',)}),
         ('More properties', {'fields': ('template_name', 'visible', 'notes', 'created', 'modified'), 'classes': ('collapse',)}),
     )
