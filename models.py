@@ -1,5 +1,4 @@
 from datetime import datetime
-from django.core import validators
 from django.db import models
 from django.contrib import admin
 from django.contrib.sites.models import Site
@@ -22,7 +21,7 @@ SITEMAP_CHANGEFREQ_CHOICES = [
 
 class Page(models.Model):
 
-    url                = models.CharField('URL', max_length=128, validator_list=[validators.isAlphaNumericURL], help_text='Should have leading and trailing slashes. ')
+    url                = models.CharField('URL', max_length=128, help_text='Should have leading and trailing slashes. ')
     title              = models.CharField(max_length=128)
     body               = models.TextField(max_length=65536, null=True, blank=True)
     body_markup        = models.CharField(choices=markup.MARKUP_CHOICES, null=True, default=DEFAULT_MARKUP, max_length=8)
