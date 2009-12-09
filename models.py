@@ -1,6 +1,5 @@
 from datetime import datetime
 from django.db import models
-from django.contrib import admin
 from django.contrib.sites.models import Site
 from django.contrib.sites.managers import CurrentSiteManager
 from factorlib import markup
@@ -55,24 +54,12 @@ class Page(models.Model):
     def get_absolute_url(self):
         return self.url
 
-    def save(self):
+    def save(self, *args, **kwargs):
         self.modified = datetime.now()
-        super(Page, self).save()
+        super(Page, self).save(*args, **kwargs)
 
     def render_body(self):
         return markup.render(self.body, self.body_markup)
-
-
-class PageAdmin(admin.ModelAdmin):
-    
-    list_display = ('url', 'title', 'site', 'visible', 'modified') 
-    list_filter = ('site',)
-    search_fields = ['url', 'title', 'body']
-    fieldsets = (
-        (None, {'fields': ('url', 'title', 'body', 'body_markup', 'site')}),
-        ('Search engine optimization', {'fields': ('page_title', 'meta_description', 'meta_keywords', 'sitemap_changefreq', 'sitemap_priority'), 'classes': ('collapse',)}),
-        ('More properties', {'fields': ('template_name', 'visible', 'notes', 'created', 'modified'), 'classes': ('collapse',)}),
-    )
 
 
 class Redirect(models.Model):
@@ -101,22 +88,32 @@ class Redirect(models.Model):
     def get_absolute_url(self):
         return self.new_url
 
-    def save(self):
+    def save(self, *args, **kwargs):
         self.modified = datetime.now()
-        super(Redirect, self).save()
+        super(Redirect, self).save(*args, **kwargs)
 
 
-class RedirectAdmin(admin.ModelAdmin):
+def redirect_if_slug_changed(sender, **kwargs):
+    """
+    Automatically create redirects when a saved object's slug has changed.
+    Requires that the model being saved has fields called id and slug.
+    """
+    try:
+        new = kwargs['instance']
+        old = sender.objects.get(id=new.id)
+        new.slug
+    except:
+        # Abort on any exception
+        pass
+    else:
+        if new.slug != old.slug:
+            # Prevent cyclical redirects
+            Redirect.objects.filter(old_url=new.get_absolute_url()).delete()
+            # Create or fetch redirect for old slug, and point to new slug
+            redirect, created = Redirect.objects.get_or_create(old_url=old.get_absolute_url())
+            redirect.new_url = new.get_absolute_url()
+            redirect.notes = 'Created by redirect_if_slug_changed.'
+            redirect.save()
 
-    list_display = ('old_url', 'new_url', 'site', 'modified') 
-    list_filter = ('site',)
-    search_fields = ['old_url', 'new_url']
-    fieldset = (
-        (None, {'fields': ('old_url', 'new_url', 'site')}),
-        ('More properties', {'fields': ('notes', 'created', 'modified'), 'classes': ('collapse',)}),
-    )
-
-
-admin.site.register(Page, PageAdmin)
-admin.site.register(Redirect, RedirectAdmin)
+models.signals.pre_save.connect(redirect_if_slug_changed)
 
