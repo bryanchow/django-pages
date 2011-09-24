@@ -4,12 +4,27 @@ from django.contrib.markup.templatetags.markup import textile, markdown, restruc
 
 
 MARKUP_CHOICES = [
-    ('plain',    'Plain text'),
-    ('textile',  'Textile'),
-    ('markdown', 'Markdown'),
-    ('rest',     'ReST'),
-    ('html',     'HTML'),
+    ('plain', 'Plain text'),
+    ('html', 'HTML'),
 ]
+
+try:
+    import textile as _textile
+    MARKUP_CHOICES.append(('textile', 'Textile'))
+except ImportError:
+    pass
+
+try:
+    import markdown as _markdown
+    MARKUP_CHOICES.append(('markdown', 'Markdown'))
+except ImportError:
+    pass
+
+try:
+    from docutils.core import publish_parts
+    MARKUP_CHOICES.append(('rest', 'ReST'))
+except ImportError:
+    pass
 
 
 def render(source, markup):
