@@ -1,8 +1,7 @@
-from datetime import datetime
 from django.template import loader, RequestContext
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.conf import settings
-from factorlib.pages.models import Page, Redirect
+from .models import Page, Redirect
 
 
 DEFAULT_TEMPLATE = 'pages/default.html'
@@ -28,8 +27,7 @@ def page(request, url):
             return HttpResponseRedirect(object.new_url)
 
         except Redirect.DoesNotExist:
-            if url.endswith('/') or not settings.APPEND_SLASH: 
-                raise Http404 
+            if url.endswith('/') or not settings.APPEND_SLASH:
+                raise Http404
             else:
-                return HttpResponseRedirect('%s/' % url) 
-
+                return HttpResponseRedirect('%s/' % url)

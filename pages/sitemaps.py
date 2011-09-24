@@ -1,5 +1,5 @@
 from django.contrib.sitemaps import Sitemap
-from factorlib.pages.models import Page
+from .models import Page
 
 
 def get_visible_pages():
@@ -19,4 +19,3 @@ class PageSitemap(Sitemap):
 
     def items(self):
         return get_visible_pages()
-

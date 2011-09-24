@@ -1,5 +1,5 @@
 from django.contrib import admin
-from factorlib.pages.models import Page, Redirect
+from .models import Page, Redirect
 
 
 class PageAdmin(admin.ModelAdmin):
@@ -28,7 +28,3 @@ class RedirectAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Redirect, RedirectAdmin)
-
-
-
-
