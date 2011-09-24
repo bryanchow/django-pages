@@ -1,4 +1,3 @@
-from datetime import datetime
 from django.db import models
 from django.contrib.sites.models import Site
 from django.contrib.sites.managers import CurrentSiteManager
@@ -35,8 +34,8 @@ class Page(models.Model):
     template_name = models.CharField(max_length=128, null=True, blank=True, help_text="If left blank, 'pages/default.html' will be used.")
     visible = models.BooleanField(default=True)
     notes = models.TextField(max_length=16384, null=True, blank=True, help_text="Private notes.")
-    created = models.DateTimeField(default=datetime.now())
-    modified = models.DateTimeField(blank=True)
+    created = models.DateTimeField(auto_now_add=True)
+    modified = models.DateTimeField(auto_now=True)
 
     objects = models.Manager()
     on_site = CurrentSiteManager('site')
@@ -51,10 +50,6 @@ class Page(models.Model):
     def get_absolute_url(self):
         return self.url
 
-    def save(self, *args, **kwargs):
-        self.modified = datetime.now()
-        super(Page, self).save(*args, **kwargs)
-
     def render_body(self):
         return render(self.body, self.body_markup)
 
@@ -66,8 +61,8 @@ class Redirect(models.Model):
     site = models.ForeignKey(Site, default=1)
 
     notes = models.TextField(max_length=16384, null=True, blank=True, help_text="Private notes.")
-    created = models.DateTimeField(default=datetime.now())
-    modified = models.DateTimeField(blank=True)
+    created = models.DateTimeField(auto_now_add=True)
+    modified = models.DateTimeField(auto_now=True)
 
     objects = models.Manager()
     on_site = CurrentSiteManager('site')
@@ -81,10 +76,6 @@ class Redirect(models.Model):
 
     def get_absolute_url(self):
         return self.new_url
-
-    def save(self, *args, **kwargs):
-        self.modified = datetime.now()
-        super(Redirect, self).save(*args, **kwargs)
 
 
 def redirect_if_slug_changed(sender, **kwargs):
