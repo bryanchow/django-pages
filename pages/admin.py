@@ -6,11 +6,20 @@ class PageAdmin(admin.ModelAdmin):
 
     list_display = ('url', 'title', 'site', 'visible', 'modified')
     list_filter = ('site',)
-    search_fields = ['url', 'title', 'body']
+    search_fields = ('url', 'title', 'body')
+    readonly_fields = ('created', 'modified')
     fieldsets = (
-        (None, {'fields': ('url', 'title', 'body', 'body_markup', 'site')}),
-        ('Search engine optimization', {'fields': ('page_title', 'meta_description', 'meta_keywords', 'sitemap_changefreq', 'sitemap_priority'), 'classes': ('collapse',)}),
-        ('More properties', {'fields': ('template_name', 'visible', 'notes', 'created', 'modified'), 'classes': ('collapse',)}),
+        (None, {
+            'fields': ('url', 'title', 'body', 'body_markup', 'site'),
+        }),
+        ('Search engine optimization', {
+            'fields': ('page_title', 'meta_description', 'meta_keywords', 'sitemap_changefreq', 'sitemap_priority'),
+            'classes': ('collapse',),
+        }),
+        ('More properties', {
+            'fields': ('template_name', 'visible', 'notes', 'created', 'modified'),
+            'classes': ('collapse',),
+        }),
     )
 
 admin.site.register(Page, PageAdmin)
@@ -20,10 +29,16 @@ class RedirectAdmin(admin.ModelAdmin):
 
     list_display = ('old_url', 'new_url', 'site', 'modified')
     list_filter = ('site',)
-    search_fields = ['old_url', 'new_url']
+    search_fields = ('old_url', 'new_url')
+    readonly_fields = ('created', 'modified')
     fieldset = (
-        (None, {'fields': ('old_url', 'new_url', 'site')}),
-        ('More properties', {'fields': ('notes', 'created', 'modified'), 'classes': ('collapse',)}),
+        (None, {
+            'fields': ('old_url', 'new_url', 'site'),
+        }),
+        ('More properties', {
+            'fields': ('notes', 'created', 'modified'),
+            'classes': ('collapse',),
+        }),
     )
 
 
