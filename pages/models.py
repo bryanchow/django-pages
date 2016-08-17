@@ -1,103 +1,89 @@
 from django.db import models
-from django.contrib.sites.models import Site
-from django.contrib.sites.managers import CurrentSiteManager
-from .markup import MARKUP_CHOICES, render
-
-
-DEFAULT_MARKUP = 'textile'
-
-SITEMAP_CHANGEFREQ_CHOICES = [
-    ('always', 'always'),
-    ('hourly', 'hourly'),
-    ('daily', 'daily'),
-    ('weekly', 'weekly'),
-    ('monthly', 'monthly'),
-    ('yearly', 'yearly'),
-    ('never', 'never'),
-]
+from django.utils.safestring import mark_safe
+from . import resources
 
 
 class Page(models.Model):
 
-    url = models.CharField("URL", max_length=128, help_text="Should have leading and trailing slashes.")
+    url = models.CharField(
+        "URL",
+        help_text = "Should have leading and trailing slashes.",
+        max_length = 255,
+    )
     title = models.CharField(max_length=128)
-    body = models.TextField(max_length=65536, null=True, blank=True)
-    body_markup = models.CharField(choices=MARKUP_CHOICES, null=True, default=DEFAULT_MARKUP, max_length=8)
-    site = models.ForeignKey(Site, default=1)
+    body = models.TextField(max_length=65536, blank=True)
+    section = models.CharField(
+        help_text = (
+            "Enter a section name to highlight the corresponding nav element "
+            "(optional)."
+        ),
+        max_length = 32,
+        blank = True,
+    )
 
-    page_title = models.CharField(max_length=512, null=True, blank=True)
-    meta_description = models.CharField(max_length=512, null=True, blank=True)
-    meta_keywords = models.CharField(max_length=512, null=True, blank=True)
-    sitemap_changefreq = models.CharField(null=True, blank=True, max_length=50, choices=SITEMAP_CHANGEFREQ_CHOICES)
-    sitemap_priority = models.DecimalField(null=True, blank=True, max_digits=2, decimal_places=1, help_text="Enter a value from 0.0 to 1.0.")
+    page_title = models.CharField(max_length=512, blank=True)
+    meta_description = models.CharField(max_length=512, blank=True)
+    meta_keywords = models.CharField(max_length=512, blank=True)
+    sitemap_changefreq = models.IntegerField(
+        null = True,
+        choices = resources.SITEMAP_CHANGEFREQ_CHOICES,
+        default = resources.DEFAULT_SITEMAP_CHANGEFREQ,
+    )
+    sitemap_priority = models.DecimalField(
+        help_text = "Enter a value from 0.0 to 1.0.",
+        blank = True,
+        max_digits = 2,
+        decimal_places = 1,
+        default = 0,
+    )
 
-    template_name = models.CharField(max_length=128, null=True, blank=True, help_text="If left blank, 'pages/default.html' will be used.")
+    template_name = models.CharField(
+        help_text = (
+            "If left blank, '%s' will be used." % resources.DEFAULT_TEMPLATE
+        ),
+        max_length = 128,
+        blank = True,
+    )
     visible = models.BooleanField(default=True)
-    notes = models.TextField(max_length=16384, null=True, blank=True, help_text="Private notes.")
+
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
 
-    objects = models.Manager()
-    on_site = CurrentSiteManager('site')
-
     class Meta:
-        unique_together = (('url', 'site'),)
         ordering = ('url',)
 
     def __unicode__(self):
-        return self.url
+        return unicode(self.url)
 
     def get_absolute_url(self):
         return self.url
 
     def render_body(self):
-        return render(self.body, self.body_markup)
+        return mark_safe(self.body)
 
 
 class Redirect(models.Model):
 
-    old_url = models.CharField("Old URL", max_length=128, unique=True, help_text="Should have a leading slash.")
-    new_url = models.CharField("New URL", max_length=128, help_text="Should have leading and trailing slashes.")
-    site = models.ForeignKey(Site, default=1)
+    old_url = models.CharField(
+        "Old URL",
+        help_text = "Should have a leading slash.",
+        max_length = 255,
+        unique = True,
+    )
+    new_url = models.CharField(
+        "New URL",
+        help_text = "Should have leading and trailing slashes.",
+        max_length = 255,
+    )
 
-    notes = models.TextField(max_length=16384, null=True, blank=True, help_text="Private notes.")
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
 
-    objects = models.Manager()
-    on_site = CurrentSiteManager('site')
-
     class Meta:
-        unique_together = (('old_url', 'site'),)
         ordering = ('old_url',)
 
     def __unicode__(self):
-        return self.old_url
+        return unicode(self.old_url)
 
     def get_absolute_url(self):
-        return self.new_url
-
-
-def redirect_if_slug_changed(sender, **kwargs):
-    """
-    Automatically create redirects when a saved object's slug has changed.
-    Requires that the model being saved has fields called id and slug.
-    """
-    try:
-        new = kwargs['instance']
-        old = sender.objects.get(id=new.id)
-        new.slug
-    except:
-        # Abort on any exception
-        pass
-    else:
-        if new.slug != old.slug:
-            # Prevent cyclical redirects
-            Redirect.objects.filter(old_url=new.get_absolute_url()).delete()
-            # Create or fetch redirect for old slug, and point to new slug
-            redirect, created = Redirect.objects.get_or_create(old_url=old.get_absolute_url())
-            redirect.new_url = new.get_absolute_url()
-            redirect.notes = 'Created by redirect_if_slug_changed.'
-            redirect.save()
-
-models.signals.pre_save.connect(redirect_if_slug_changed)
+        return self.old_url
