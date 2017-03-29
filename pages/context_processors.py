@@ -7,4 +7,5 @@ def page(request):
 
     return {
         'page': page,
+        'section': page.section if page else None,
     }
