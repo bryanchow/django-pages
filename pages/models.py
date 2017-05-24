@@ -61,6 +61,9 @@ class Page(models.Model):
     def render_body(self):
         return mark_safe(self.body)
 
+    def render_sitemap_changefreq(self):
+        return resources.SITEMAP_CHANGEFREQS[self.sitemap_changefreq]
+
 
 class Redirect(models.Model):
 

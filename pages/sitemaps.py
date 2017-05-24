@@ -8,7 +8,7 @@ class PageSitemap(Sitemap):
         return obj.modified
 
     def changefreq(self, obj):
-        return obj.sitemap_changefreq
+        return obj.render_sitemap_changefreq()
 
     def priority(self, obj):
         return obj.sitemap_priority
