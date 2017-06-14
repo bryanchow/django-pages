@@ -71,7 +71,6 @@ class Redirect(models.Model):
         "Old URL",
         help_text = "Should have a leading slash.",
         max_length = 255,
-        unique = True,
     )
     new_url = models.CharField(
         "New URL",

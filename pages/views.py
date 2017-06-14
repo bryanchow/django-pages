@@ -11,7 +11,7 @@ def page_view(request, url):
         url = "/" + url
 
     try:
-        page = Page.objects.get(url__exact=url)
+        page = Page.objects.filter(url__exact=url)[0]
         if page.template_name:
             template = loader.select_template(
                 (page.template_name, resources.DEFAULT_TEMPLATE)
@@ -23,13 +23,11 @@ def page_view(request, url):
             'section': page.section,
         })))
 
-    except Page.DoesNotExist:
-
+    except IndexError:
         try:
-            page = Redirect.objects.get(old_url__exact=url)
+            page = Redirect.objects.filter(old_url__exact=url)[0]
             return HttpResponseRedirect(page.new_url)
-
-        except Redirect.DoesNotExist:
+        except IndexError:
             if url.endswith("/") or not settings.APPEND_SLASH:
                 raise Http404
             else:
